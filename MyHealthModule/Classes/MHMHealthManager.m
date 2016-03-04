@@ -158,9 +158,15 @@
     calendar = [NSCalendar calendarWithIdentifier:NSGregorianCalendar];
 #endif
     
+    NSDateComponents *currentComponents = [calendar components:NSCalendarUnitSecond | NSCalendarUnitMinute | NSCalendarUnitHour fromDate:[NSDate date]];
+    NSDate *endDate = [NSDate dateWithTimeIntervalSinceNow: - (currentComponents.hour * 3600 + currentComponents.minute * 60 + currentComponents.second)];
+
+    NSDateComponents *anchorComponents = [calendar components:NSCalendarUnitSecond | NSCalendarUnitMinute | NSCalendarUnitHour | NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                                                     fromDate:endDate];
+    
     [self executeQueryForQuantityType:quantityType
                             predicate:nil
-                           anchorDate:[NSDate dateWithTimeIntervalSince1970:0]
+                           anchorDate:[calendar dateFromComponents:anchorComponents]
                    intervalComponents:intervalComponents
                        callBackResult:^(HKStatisticsCollection * _Nullable result, NSError *error) {
         if (error) {
@@ -177,9 +183,9 @@
                         @autoreleasepool {
                             //数据封装
                             MHMHealthModel *healthModel = [[MHMHealthModel alloc] init];
-                            healthModel.startDateComponents = [calendar components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                            healthModel.startDateComponents = [calendar components:NSCalendarUnitSecond | NSCalendarUnitMinute | NSCalendarUnitHour | NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
                                                                           fromDate:statistics.startDate];
-                            healthModel.endDateComponents = [calendar components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                            healthModel.endDateComponents = [calendar components:NSCalendarUnitSecond | NSCalendarUnitMinute | NSCalendarUnitHour | NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
                                                                         fromDate:statistics.endDate];
                             healthModel.stepCount = stepCount;
                             [tempArray insertObject:healthModel atIndex:0];//倒序
