@@ -107,27 +107,28 @@
                 for (HKSource *source in statistic.sources) {
                     if ([source.name isEqualToString:[UIDevice currentDevice].name]) {//只取设备的步数，过滤其他第三方应用的
                         double stepCount = [[statistic sumQuantityForSource:source] doubleValueForUnit:[HKUnit countUnit]];
-
-                        //初始化最小步数为第一个值，方便之后计算最小步数
-                        if (minStepCount == 0) {
-                            minStepCount = stepCount;
-                        }
-                        maxStepCount = MAX(maxStepCount, stepCount);
-                        minStepCount = MIN(minStepCount, stepCount);
-                        totalStepCount += stepCount;
-                        
-                        @autoreleasepool {
-                            //数据封装
-                            MHMHealthModel *healthModel = [[MHMHealthModel alloc] init];
-                            healthModel.startDateComponents = [calendar components:NSCalendarUnitSecond | NSCalendarUnitMinute | NSCalendarUnitHour | NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
-                                                                          fromDate:statistic.startDate];
-                            healthModel.endDateComponents = [calendar components:NSCalendarUnitSecond | NSCalendarUnitMinute | NSCalendarUnitHour | NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
-                                                                        fromDate:statistic.endDate];
-                            healthModel.stepCount = stepCount;
+                        if (stepCount > 0) {//手动从健康应用中获取添加数据，设备步数为0，这里做过滤操作
+                            //初始化最小步数为第一个值，方便之后计算最小步数
+                            if (minStepCount == 0) {
+                                minStepCount = stepCount;
+                            }
+                            maxStepCount = MAX(maxStepCount, stepCount);
+                            minStepCount = MIN(minStepCount, stepCount);
+                            totalStepCount += stepCount;
                             
-                            [tempArray addObject:healthModel];
+                            @autoreleasepool {
+                                //数据封装
+                                MHMHealthModel *healthModel = [[MHMHealthModel alloc] init];
+                                healthModel.startDateComponents = [calendar components:NSCalendarUnitSecond | NSCalendarUnitMinute | NSCalendarUnitHour | NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                                                                              fromDate:statistic.startDate];
+                                healthModel.endDateComponents = [calendar components:NSCalendarUnitSecond | NSCalendarUnitMinute | NSCalendarUnitHour | NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                                                                            fromDate:statistic.endDate];
+                                healthModel.stepCount = stepCount;
+                                
+                                [tempArray addObject:healthModel];
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }];
